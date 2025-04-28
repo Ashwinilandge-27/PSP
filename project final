@@ -1,0 +1,145 @@
+import time
+import random
+import pyttsx3
+
+# Initialize the text-to-speech engine
+engine = pyttsx3.init()
+engine.setProperty('rate', 150)  # Adjust the speaking speed
+
+# Function to speak text
+def speak(text):
+    engine.stop()        # Stop any ongoing speech
+    engine.say(text)
+    engine.runAndWait()
+
+# Flashcards for learning
+flashcards1 = {
+    "apple": "Apfel",
+    "book": "Buch",
+    "car": "Auto",
+    "dog": "Hund",
+    "elephant": "Elefant",
+    "friend": "Freund",
+    "grape": "Traube",
+    "house": "Haus",
+    "ice": "Eis",
+    "jungle": "Dschungel",
+    "king": "König",
+    "love": "Liebe",
+    "moon": "Mond",
+    "night": "Nacht",
+    "ocean": "Ozean",
+    "How are you?": "Wie geht's dir?",
+    "Good morning!": "Guten Morgen!",
+    "I love you": "Ich liebe dich",
+    "What is your name?": "Wie heißt du?",
+    "Where are you from?": "Woher kommst du?",
+    "Good night": "Gute Nacht",
+    "See you later": "Bis später",
+    "Take care": "Pass auf dich auf"
+}
+
+# Function to learn words
+def learn_words():
+    speak("Let's start learning words.")
+    for word, translation in flashcards1.items():
+        if len(word.split()) == 1:
+            print(f"\nEnglish: {word} → German: {translation}")
+            speak(f"The German word for {word} is {translation}.")
+            time.sleep(0.5)
+            print("Hurray! You learned a new word! ✅")
+            speak("Hurray! You learned a new word!")
+
+# Function to learn phrases
+def learn_phrases():
+    speak("Now let's learn some phrases.")
+    for phrase, translation in flashcards1.items():
+        if len(phrase.split()) > 1:
+            print(f"\nEnglish: {phrase} → German: {translation}")
+            speak(f"The German translation for {phrase} is {translation}.")
+            time.sleep(0.5)
+            print("Hurray! You learned a new phrase! ✅")
+            speak("Hurray! You learned a new phrase!")
+
+# Function to test knowledge
+def check_your_knowledge(choice):
+    if choice == 1:
+        selected_flashcards = {k: v for k, v in flashcards1.items() if len(k.split()) == 1}
+    elif choice == 2:
+        selected_flashcards = {k: v for k, v in flashcards1.items() if len(k.split()) > 1}
+    else:
+        print("❌ Invalid choice! Defaulting to words test.")
+        selected_flashcards = {k: v for k, v in flashcards1.items() if len(k.split()) == 1}
+    
+    num_questions = int(input("How many questions do you want to answer? (Max: 10) "))
+    num_questions = min(num_questions, 10)
+    selected_questions = random.sample(list(selected_flashcards.items()), num_questions)
+    
+    print("\nHere are your questions:")
+    speak("Here are your questions.")
+    score = 0
+
+    for i, (question, answer) in enumerate(selected_questions, 1):
+        options = [answer]
+        all_answers = list(flashcards1.values())
+        all_answers.remove(answer)
+        wrong_options = random.sample(all_answers, min(3, len(all_answers))) if len(all_answers) >= 3 else all_answers
+        options.extend(wrong_options)
+        random.shuffle(options)
+        
+        print(f'\n{i}. What is the German translation of "{question}"?')
+        speak(f"What is the German translation of {question}?")
+        for idx, option in enumerate(options, 1):
+            print(f"{idx}. {option}")
+        
+        while True:
+            user_input = input("Enter the option number: ")
+            if user_input.isdigit():
+                user_input = int(user_input)
+                if 1 <= user_input <= len(options):
+                    if options[user_input - 1] == answer:
+                        print("✅ Correct!")
+                        speak("Correct!")
+                        score += 1
+                    else:
+                        print(f"❌ Incorrect! The correct answer is '{answer}'.")
+                        speak(f"Incorrect! The correct answer is {answer}.")
+                    time.sleep(0.5)
+                    break
+                else:
+                    print(f"❌ Invalid option! Please choose a number between 1 and {len(options)}.")
+                    speak("Invalid option. Please choose a number between 1 and " + str(len(options)) + ".")
+            else:
+                print("❌ Invalid input! Please enter a valid number.")
+                speak("Invalid input. Please enter a valid number.")
+    
+    print(f"\nYour final score is: {score}/{num_questions}")
+    speak(f"Your final score is {score} out of {num_questions}.")
+
+# Main function
+def main():
+    speak("Welcome to the English-German Learning App!")
+    print("Welcome to the English-German Learning App! 🌍")
+    print("\nLet's start learning!")
+    learn_words()
+    learn_phrases()
+    
+    while True:
+        print("\nNow it's time to test your knowledge!")
+        speak("Now it's time to test your knowledge!")
+        print("Enter 1 for words test or 2 for phrases test.")
+        choice = input("Your choice: ")
+        if choice.isdigit() and int(choice) in [1, 2]:
+            check_your_knowledge(int(choice))
+        else:
+            print("❌ Invalid input! Please enter 1 or 2.")
+            speak("Invalid input. Please enter 1 or 2.")
+            continue
+
+        again = input("\nDo you want to take the test again? (yes/no): ").strip().lower()
+        if again != "yes":
+            print("Thank you for learning! Goodbye! 👋")
+            speak("Thank you for learning! Goodbye!")
+            break
+
+main()
